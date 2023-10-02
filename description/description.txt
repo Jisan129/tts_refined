@@ -1,0 +1,1 @@
+This is a libre office word extension for text to speech conversion
