@@ -46,21 +46,21 @@ class tts_writer_UI(unohelper.Base, XActionListener, XJobExecutor):
         self.DialogModel.PositionX = "750"
         self.DialogModel.PositionY = "250"
         self.DialogModel.Width = 180
-        self.DialogModel.Height = 320
+        self.DialogModel.Height = 280
         self.DialogModel.Closeable = True
         self.DialogModel.Moveable = False
         self.DialogModel.DesktopAsParent = False
 
-        #imagesection
+        # imagesection
         self.ImageControl1 = self.DialogModel.createInstance("com.sun.star.awt.UnoControlImageControlModel")
 
         self.ImageControl1.Name = "ImageControl1"
         self.ImageControl1.TabIndex = 1
-        self.ImageControl1.PositionX = "20"
-        self.ImageControl1.PositionY = "20"
-        self.ImageControl1.Width = 140
-        self.ImageControl1.Height = 36
-        username = getpass.getuser();
+        self.ImageControl1.PositionX = "40"
+        self.ImageControl1.PositionY = "10"
+        self.ImageControl1.Width = 100
+        self.ImageControl1.Height = 20
+        username = getpass.getuser()
         print(f'/home/{username}/Documents/decoded_image.png')
         self.ImageControl1.ImageURL = uno.fileUrlToSystemPath(f"file:///home/{username}/Documents/decoded_image.png")
 
@@ -72,46 +72,6 @@ class tts_writer_UI(unohelper.Base, XActionListener, XJobExecutor):
         self.DialogModel.insertByName("ImageControl1", self.ImageControl1)
 
         # --------- create an instance of Button control, set properties ---
-        self.textButton = self.DialogModel.createInstance("com.sun.star.awt.UnoControlButtonModel")
-
-        self.textButton.Name = "textButton"
-        self.textButton.TabIndex = 3
-        self.textButton.PositionX = "140"
-        self.textButton.PositionY = "134"
-        self.textButton.Width = 40
-        self.textButton.Height = 15
-        self.textButton.Label = "TEXT"
-        self.textButton.Toggle = 1
-        # self.textButton.FocusOnClick = False
-        self.textButton.State = 0
-
-        # inserts the control model into the dialog model
-        self.DialogModel.insertByName("textButton", self.textButton)
-
-        # add the action listener
-        self.DialogContainer.getControl('textButton').addActionListener(self)
-        self.DialogContainer.getControl('textButton').setActionCommand('textButton_OnClick')
-
-        # --------- create an instance of Button control, set properties ---
-        self.ssmlButton = self.DialogModel.createInstance("com.sun.star.awt.UnoControlButtonModel")
-
-        self.ssmlButton.Name = "ssmlButton"
-        self.ssmlButton.TabIndex = 17
-        self.ssmlButton.PositionX = "180"
-        self.ssmlButton.PositionY = "134"
-        self.ssmlButton.Width = 40
-        self.ssmlButton.Height = 15
-        self.ssmlButton.Label = "SSML"
-        self.ssmlButton.Toggle = 1
-        # self.ssmlButton.FocusOnClick = False
-        self.ssmlButton.State = 0
-
-        # inserts the control model into the dialog model
-        self.DialogModel.insertByName("ssmlButton", self.ssmlButton)
-
-        # add the action listener
-        self.DialogContainer.getControl('ssmlButton').addActionListener(self)
-        self.DialogContainer.getControl('ssmlButton').setActionCommand('ssmlButton_OnClick')
 
         # --------- create an instance of Button control, set properties ---
         self.ansiButton = self.DialogModel.createInstance("com.sun.star.awt.UnoControlButtonModel")
@@ -119,7 +79,7 @@ class tts_writer_UI(unohelper.Base, XActionListener, XJobExecutor):
         self.ansiButton.Name = "ansiButton"
         self.ansiButton.TabIndex = 4
         self.ansiButton.PositionX = "55"
-        self.ansiButton.PositionY = "134"
+        self.ansiButton.PositionY = "65"
         self.ansiButton.Width = 35
         self.ansiButton.Height = 15
         self.ansiButton.Label = "ANSI"
@@ -140,7 +100,7 @@ class tts_writer_UI(unohelper.Base, XActionListener, XJobExecutor):
         self.unicodeButton.Name = "unicodeButton"
         self.unicodeButton.TabIndex = 5
         self.unicodeButton.PositionX = "90"
-        self.unicodeButton.PositionY = "134"
+        self.unicodeButton.PositionY = "65"
         self.unicodeButton.Width = 35
         self.unicodeButton.Height = 15
         self.unicodeButton.Label = "UNICODE"
@@ -163,10 +123,10 @@ class tts_writer_UI(unohelper.Base, XActionListener, XJobExecutor):
 
         self.startButton.Name = "startButton"
         self.startButton.TabIndex = 10
-        self.startButton.PositionX = "100"
-        self.startButton.PositionY = "91"
-        self.startButton.Width = 55
-        self.startButton.Height = 20
+        self.startButton.PositionX = "55"
+        self.startButton.PositionY = "200"
+        self.startButton.Width = 35
+        self.startButton.Height = 15
         self.startButton.Label = "Start"
         self.startButton.FocusOnClick = False
 
@@ -182,10 +142,10 @@ class tts_writer_UI(unohelper.Base, XActionListener, XJobExecutor):
 
         self.clearButton.Name = "clearButton"
         self.clearButton.TabIndex = 11
-        self.clearButton.PositionX = "165"
-        self.clearButton.PositionY = "91"
-        self.clearButton.Width = 55
-        self.clearButton.Height = 20
+        self.clearButton.PositionX = "90"
+        self.clearButton.PositionY = "200"
+        self.clearButton.Width = 35
+        self.clearButton.Height = 15
         self.clearButton.Label = "Download"
         self.clearButton.FocusOnClick = False
 
@@ -214,16 +174,15 @@ class tts_writer_UI(unohelper.Base, XActionListener, XJobExecutor):
         self.DialogContainer.getControl('closeButton').addActionListener(self)
         self.DialogContainer.getControl('closeButton').setActionCommand('closeButton_OnClick')
 
-        self.maleButton = self.DialogModel.createInstance("com.sun.star.awt.UnoControlRadioButtonModel")
+        self.maleButton = self.DialogModel.createInstance("com.sun.star.awt.UnoControlButtonModel")
 
         self.maleButton.Name = "maleButton"
         self.maleButton.TabIndex = 6
-        self.maleButton.PositionX = "84"
-        self.maleButton.PositionY = "190"
-        self.maleButton.Width = 32
-        self.maleButton.Height = 30
+        self.maleButton.PositionX = "55"
+        self.maleButton.PositionY = "115"
+        self.maleButton.Width = 35
+        self.maleButton.Height = 15
         self.maleButton.Label = "পুরুষ"
-        self.maleButton.State = True
 
         # inserts the control model into the dialog model
         self.DialogModel.insertByName("maleButton", self.maleButton)
@@ -233,14 +192,14 @@ class tts_writer_UI(unohelper.Base, XActionListener, XJobExecutor):
         self.DialogContainer.getControl('maleButton').setActionCommand('maleButton_OnClick')
 
         # --------- create an instance of RadioButton control, set properties ---
-        self.femaleButton = self.DialogModel.createInstance("com.sun.star.awt.UnoControlRadioButtonModel")
+        self.femaleButton = self.DialogModel.createInstance("com.sun.star.awt.UnoControlButtonModel")
 
         self.femaleButton.Name = "femaleButton"
         self.femaleButton.TabIndex = 7
-        self.femaleButton.PositionX = "84"
-        self.femaleButton.PositionY = "220"
-        self.femaleButton.Width = 30
-        self.femaleButton.Height = 30
+        self.femaleButton.PositionX = "90"
+        self.femaleButton.PositionY = "115"
+        self.femaleButton.Width = 35
+        self.femaleButton.Height = 15
         self.femaleButton.Label = "নারী"
 
         # inserts the control model into the dialog model
@@ -253,46 +212,18 @@ class tts_writer_UI(unohelper.Base, XActionListener, XJobExecutor):
         # --------- create an instance of RadioButton control, set properties ---
 
         # --------- create an instance of ListBox control, set properties ---
-        self.maleDrop = self.DialogModel.createInstance("com.sun.star.awt.UnoControlListBoxModel")
 
-        self.maleDrop.Name = "maleDrop"
-        self.maleDrop.TabIndex = 19
-        self.maleDrop.PositionX = "130"
-        self.maleDrop.PositionY = "188"
-        self.maleDrop.Width = 40
-        self.maleDrop.Height = 10
-        self.maleDrop.Dropdown = True
-        self.maleDrop.Align = 1
-        self.maleDrop.StringItemList = ('কণ্ঠ ১', 'কণ্ঠ ২')
-        self.maleDrop.SelectedItems = ['0']
 
-        # inserts the control model into the dialog model
-        self.DialogModel.insertByName("maleDrop", self.maleDrop)
 
-        self.femaleDrop = self.DialogModel.createInstance("com.sun.star.awt.UnoControlListBoxModel")
-
-        self.femaleDrop.Name = "femaleDrop"
-        self.femaleDrop.TabIndex = 19
-        self.femaleDrop.PositionX = "130"
-        self.femaleDrop.PositionY = "225"
-        self.femaleDrop.Width = 40
-        self.femaleDrop.Height = 10
-        self.femaleDrop.Dropdown = True
-        self.femaleDrop.Align = 1
-        self.femaleDrop.StringItemList = ('কণ্ঠ ১', 'কণ্ঠ ২')
-        self.femaleDrop.SelectedItems = ['0']
-
-        # inserts the control model into the dialog model
-        self.DialogModel.insertByName("femaleDrop", self.femaleDrop)
 
         self.speedBox = self.DialogModel.createInstance("com.sun.star.awt.UnoControlListBoxModel")
 
         self.speedBox.Name = "speedBox"
         self.speedBox.TabIndex = 13
         self.speedBox.PositionX = "57"
-        self.speedBox.PositionY = "260"
-        self.speedBox.Width = 60
-        self.speedBox.Height = 24
+        self.speedBox.PositionY = "155"
+        self.speedBox.Width = 30
+        self.speedBox.Height = 15
         self.speedBox.Dropdown = True
         self.speedBox.Align = 1
         self.speedBox.StringItemList = ('-2X', '-1X', '0', '1X', '2X', '-2X', '-1X', '0', '1X', '2X')
@@ -307,8 +238,8 @@ class tts_writer_UI(unohelper.Base, XActionListener, XJobExecutor):
         self.speedLabel.Name = "speedLabel"
         self.speedLabel.TabIndex = 15
         self.speedLabel.PositionX = "40"
-        self.speedLabel.PositionY = "260"
-        self.speedLabel.Width = 24
+        self.speedLabel.PositionY = "155"
+        self.speedLabel.Width = 30
         self.speedLabel.Height = 18
         self.speedLabel.Label = "গতি"
 
@@ -320,8 +251,8 @@ class tts_writer_UI(unohelper.Base, XActionListener, XJobExecutor):
 
         self.pitchLabel.Name = "pitchLabel"
         self.pitchLabel.TabIndex = 16
-        self.pitchLabel.PositionX = "135"
-        self.pitchLabel.PositionY = "260"
+        self.pitchLabel.PositionX = "95"
+        self.pitchLabel.PositionY = "155"
         self.pitchLabel.Width = 24
         self.pitchLabel.Height = 18
         self.pitchLabel.Label = "পিচ"
@@ -332,10 +263,10 @@ class tts_writer_UI(unohelper.Base, XActionListener, XJobExecutor):
         self.pitchBox = self.DialogModel.createInstance("com.sun.star.awt.UnoControlListBoxModel")
         self.pitchBox.Name = "pitchBox"
         self.pitchBox.TabIndex = 14
-        self.pitchBox.PositionX = "158"
-        self.pitchBox.PositionY = "260"
-        self.pitchBox.Width = 60
-        self.pitchBox.Height = 24
+        self.pitchBox.PositionX = "110"
+        self.pitchBox.PositionY = "155"
+        self.pitchBox.Width = 30
+        self.pitchBox.Height = 15
         self.pitchBox.Dropdown = True
         self.pitchBox.Align = 1
         self.pitchBox.StringItemList = ('-2X', '-1X', '0', '1X', '2X', '-2X', '-1X', '0', '1X', '2X')
@@ -349,13 +280,26 @@ class tts_writer_UI(unohelper.Base, XActionListener, XJobExecutor):
         self.kontho.Name = "kontho"
         self.kontho.TabIndex = 51
         self.kontho.PositionX = "40"
-        self.kontho.PositionY = "170"
-        self.kontho.Width = 180
-        self.kontho.Height = 80
+        self.kontho.PositionY = "100"
+        self.kontho.Width = 100
+        self.kontho.Height = 45
         self.kontho.Label = "কণ্ঠ"
 
         # inserts the control model into the dialog model
+
         self.DialogModel.insertByName("kontho", self.kontho)
+
+
+        self.okkhor = self.DialogModel.createInstance("com.sun.star.awt.UnoControlGroupBoxModel")
+        self.okkhor.Name = "okkhor"
+        self.okkhor.TabIndex = 29
+        self.okkhor.PositionX = "40"
+        self.okkhor.PositionY = "50"
+        self.okkhor.Width = 100
+        self.okkhor.Height = 45
+        self.okkhor.Label = "অক্ষর সেট"
+
+        self.DialogModel.insertByName("okkhor", self.okkhor)
 
     # -----------------------------------------------------------
     #               Action events

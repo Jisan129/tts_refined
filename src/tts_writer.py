@@ -3,15 +3,18 @@
 
 
 import threading
+import time
+import pygame
 import uno
-
-import os
-
+import multiprocessing
+import io
 import requests
 import re
+import getpass
 from pydub import AudioSegment
 from pydub.playback import play
 from io import BytesIO
+import numpy as np
 import base64
 from com.sun.star.awt.MessageBoxButtons import BUTTONS_OK, BUTTONS_OK_CANCEL, BUTTONS_YES_NO, BUTTONS_YES_NO_CANCEL, \
     BUTTONS_RETRY_CANCEL, BUTTONS_ABORT_IGNORE_RETRY
@@ -30,7 +33,7 @@ FLAG_TEST = True
 MAX_WORDS = 20
 MAX_RETRY_COUNT = 5
 FOOL = "ok"
-URL = "https://dev.revesoft.com:8090/infer/"
+URL = "https://stt.bangla.gov.bd:9381/utils"
 HEADERS = {"Content-Type": "application/json"}
 response_audios = {}
 is_playing = [False]
@@ -38,6 +41,21 @@ main_chunks = []
 lock = threading.Lock()
 gender = ["Male"]
 flag = [1]
+download_chunk = []
+concentrated_bytes = None;
+username = getpass.getuser();
+download_file = f"/home/{username}/Documents/TTS_Download_File";
+pause_event = threading.Event()
+
+pause_threads = threading.Event()
+pause_threads.set()
+
+pygame.init()
+pygame.mixer.init()
+
+
+def tempFunc():
+    pass
 
 
 class tts_writer(tts_writer_UI):
@@ -116,7 +134,6 @@ class tts_writer(tts_writer_UI):
             self.startButton.Label = "Resume"
             result += 1
         flag.append(result)
-        self.disableButtons();
         try:
             ctx = remote_ctx  # IDE
         except:
@@ -136,8 +153,19 @@ class tts_writer(tts_writer_UI):
             main_thread.start()
 
     def clearButton_OnClick(self):
-        self.enableButtons();
-        response_audios.clear()
+        # concatenated_bytes = b''.join(download_chunk)
+        # audio = AudioSegment.from_file(io.BytesIO(concatenated_bytes))
+        # audio.export(download_file, format="wav")
+        audio_segments = []
+        for audio_bytes in download_chunk:
+            audio_segment = AudioSegment.from_file(io.BytesIO(audio_bytes))
+            audio_segments.append(audio_segment)
+
+        # Concatenate all the audio segments into one
+        final_audio = sum(audio_segments)
+
+        # Save the concatenated audio as an audio file (e.g., WAV or MP3)
+        final_audio.export(download_file, format="wav")
 
     def proxy(self, main_text):
         print(main_text)
@@ -157,7 +185,6 @@ class tts_writer(tts_writer_UI):
             thread.join()
 
         play_audios()
-        self.enableButtons()
 
     def closeButton_OnClick(self):
         self.DialogContainer.dispose()
@@ -165,14 +192,10 @@ class tts_writer(tts_writer_UI):
         # TODO: not implemented
 
     def maleButton_OnClick(self):
-        gender[0] = "Male"
-        self.femaleDrop.Enabled = False
-        self.maleDrop.Enabled = True;
+        pygame.mixer.pause()
 
     def femaleButton_OnClick(self):
-        gender[0] = "Female"
-        self.maleDrop.Enabled = False
-        self.femaleDrop.Enabled = True
+        pygame.mixer.unpause()
 
         # TODO: not implemented
 
@@ -264,7 +287,7 @@ def send_request(text):
         try:
             response = requests.post(URL, headers=HEADERS,
                                      json={
-                                         "text": text, "model": "FastSpeech2", "gender": gender[0]},
+                                         "text": text, "module": "backend_tts", "submodule": "infer"},
                                      verify=False)
             if response.ok:
                 break
@@ -278,9 +301,10 @@ def send_and_receive_chunk(chunk):
     response = send_request(chunk)
     if response and response.ok:
         print("Response received")
-        response_json = response.json()
-        output_audio = response_json["output"]
-        audio_data = base64.b64decode(output_audio)
+
+        audio_data = response.content;
+        download_chunk.append(audio_data)
+
         audio = AudioSegment.from_file(BytesIO(audio_data))
         with lock:
             response_audios[chunk] = audio
@@ -289,6 +313,13 @@ def send_and_receive_chunk(chunk):
 
 
 # TODO: not implemented
+def pause_audio():
+    pause_event.set()
+
+
+# To resume audio playback
+def resume_audio():
+    pause_event.clear()
 
 
 def play_audio(chunk):
@@ -296,9 +327,17 @@ def play_audio(chunk):
         is_playing[0] = True
         with lock:
             audio = response_audios.pop(chunk)
-        play(audio)
+        if audio.channels != 2:
+            audio = audio.set_channels(2)
+        audio = audio.set_frame_rate(44100)  # Convert AudioSegment to a NumP array
+        audio_array = np.array(audio.get_array_of_samples()).reshape(-1, 2)
+        sound = pygame.sndarray.make_sound(audio_array)  # Play the sound
+        sound.play()
+
+       # play(audio)
+        while pygame.mixer.get_busy():
+            pygame.time.Clock().tick(10)  # Limit the loop's speed to avoid high CPU usage
         is_playing[0] = False
-        print(len(response_audios))
 
 
 def play_audios():
