@@ -124,10 +124,10 @@ class tts_writer_UI(unohelper.Base, XActionListener, XJobExecutor):
         self.startButton.Name = "startButton"
         self.startButton.TabIndex = 10
         self.startButton.PositionX = "55"
-        self.startButton.PositionY = "200"
+        self.startButton.PositionY = "190"
         self.startButton.Width = 35
         self.startButton.Height = 15
-        self.startButton.Label = "Start"
+        self.startButton.Label = "Play"
         self.startButton.FocusOnClick = False
 
         # inserts the control model into the dialog model
@@ -142,29 +142,44 @@ class tts_writer_UI(unohelper.Base, XActionListener, XJobExecutor):
 
         self.clearButton.Name = "clearButton"
         self.clearButton.TabIndex = 11
-        self.clearButton.PositionX = "90"
-        self.clearButton.PositionY = "200"
+        self.clearButton.PositionX = "55"
+        self.clearButton.PositionY = "220"
         self.clearButton.Width = 35
         self.clearButton.Height = 15
+        self.clearButton.Enabled=False
         self.clearButton.Label = "Download"
         self.clearButton.FocusOnClick = False
-
-        # inserts the control model into the dialog model
         self.DialogModel.insertByName("clearButton", self.clearButton)
 
-        # add the action listener
         self.DialogContainer.getControl('clearButton').addActionListener(self)
         self.DialogContainer.getControl('clearButton').setActionCommand('clearButton_OnClick')
+        self.resumeButton = self.DialogModel.createInstance("com.sun.star.awt.UnoControlButtonModel")
+
+        self.resumeButton.Name = "clearButton"
+        self.resumeButton.TabIndex = 11
+        self.resumeButton.PositionX = "900"
+        self.resumeButton.PositionY = "200"
+        self.resumeButton.Width = 35
+        self.resumeButton.Height = 15
+        self.resumeButton.Label = "Resume"
+        self.resumeButton.FocusOnClick = False
+
+        # inserts the control model into the dialog model
+        self.DialogModel.insertByName("resumeButton", self.resumeButton)
+
+        # add the action listener
+        self.DialogContainer.getControl('resumeButton').addActionListener(self)
+        self.DialogContainer.getControl('resumeButton').setActionCommand('resumeButton_OnClick')
 
         # --------- create an instance of Button control, set properties ---
         self.closeButton = self.DialogModel.createInstance("com.sun.star.awt.UnoControlButtonModel")
 
         self.closeButton.Name = "closeButton"
         self.closeButton.TabIndex = 12
-        self.closeButton.PositionX = "190"
-        self.closeButton.PositionY = "16"
-        self.closeButton.Width = 30
-        self.closeButton.Height = 24
+        self.closeButton.PositionX = "160"
+        self.closeButton.PositionY = "5"
+        self.closeButton.Width = 20
+        self.closeButton.Height = 15
         self.closeButton.Label = "Close"
 
         # inserts the control model into the dialog model
@@ -173,6 +188,23 @@ class tts_writer_UI(unohelper.Base, XActionListener, XJobExecutor):
         # add the action listener
         self.DialogContainer.getControl('closeButton').addActionListener(self)
         self.DialogContainer.getControl('closeButton').setActionCommand('closeButton_OnClick')
+
+        self.stopButton = self.DialogModel.createInstance("com.sun.star.awt.UnoControlButtonModel")
+
+        self.stopButton.Name = "stopButton"
+        self.stopButton.TabIndex = 11
+        self.stopButton.PositionX = "90"
+        self.stopButton.PositionY = "190"
+        self.stopButton.Width = 35
+        self.stopButton.Height = 15
+        self.stopButton.Label = "Stop"
+
+        # inserts the control model into the dialog model
+        self.DialogModel.insertByName("stopButton", self.stopButton)
+
+        # add the action listener
+        self.DialogContainer.getControl('stopButton').addActionListener(self)
+        self.DialogContainer.getControl('stopButton').setActionCommand('stopButton_OnClick')
 
         self.maleButton = self.DialogModel.createInstance("com.sun.star.awt.UnoControlButtonModel")
 
@@ -212,9 +244,6 @@ class tts_writer_UI(unohelper.Base, XActionListener, XJobExecutor):
         # --------- create an instance of RadioButton control, set properties ---
 
         # --------- create an instance of ListBox control, set properties ---
-
-
-
 
         self.speedBox = self.DialogModel.createInstance("com.sun.star.awt.UnoControlListBoxModel")
 
@@ -289,7 +318,6 @@ class tts_writer_UI(unohelper.Base, XActionListener, XJobExecutor):
 
         self.DialogModel.insertByName("kontho", self.kontho)
 
-
         self.okkhor = self.DialogModel.createInstance("com.sun.star.awt.UnoControlGroupBoxModel")
         self.okkhor.Name = "okkhor"
         self.okkhor.TabIndex = 29
@@ -327,6 +355,9 @@ class tts_writer_UI(unohelper.Base, XActionListener, XJobExecutor):
         if oActionEvent.ActionCommand == 'startButton_OnClick':
             self.startButton_OnClick()
 
+        if oActionEvent.ActionCommand == 'stopButton_OnClick':
+            self.stopButton_OnClick()
+
         if oActionEvent.ActionCommand == 'clearButton_OnClick':
             self.clearButton_OnClick()
 
@@ -342,5 +373,8 @@ class tts_writer_UI(unohelper.Base, XActionListener, XJobExecutor):
 
         if oActionEvent.ActionCommand == 'femaleButton_OnClick':
             self.femaleButton_OnClick()
+        if oActionEvent.ActionCommand == 'resumeButton_OnClick':
+            self.femaleButton_OnClick()
+
 
 # ----------------- END GENERATED CODE ----------------------------------------

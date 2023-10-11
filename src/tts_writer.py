@@ -3,19 +3,15 @@
 
 
 import threading
-import time
 import pygame
 import uno
-import multiprocessing
 import io
 import requests
 import re
 import getpass
 from pydub import AudioSegment
-from pydub.playback import play
 from io import BytesIO
 import numpy as np
-import base64
 from com.sun.star.awt.MessageBoxButtons import BUTTONS_OK, BUTTONS_OK_CANCEL, BUTTONS_YES_NO, BUTTONS_YES_NO_CANCEL, \
     BUTTONS_RETRY_CANCEL, BUTTONS_ABORT_IGNORE_RETRY
 from com.sun.star.awt.MessageBoxButtons import DEFAULT_BUTTON_OK, DEFAULT_BUTTON_CANCEL, DEFAULT_BUTTON_RETRY, \
@@ -41,6 +37,8 @@ main_chunks = []
 lock = threading.Lock()
 gender = ["Male"]
 flag = [1]
+app = None;
+resumeFlag = [1]
 download_chunk = []
 concentrated_bytes = None;
 username = getpass.getuser();
@@ -93,8 +91,13 @@ class tts_writer(tts_writer_UI):
     # -----------------------------------------------------------
 
     def showDialog(self):
+        global app
+        app = self
         self.DialogContainer.setVisible(True)
         self.DialogContainer.createPeer(self.Toolkit, None)
+        xWindow = uno.getClass("com.sun.star.awt.XWindow")
+        dialog_window = uno.QueryInterface(xWindow, self.DialogContainer)
+        dialog_window.setVisible(True)
         self.DialogContainer.execute()
 
     '''
@@ -122,40 +125,64 @@ class tts_writer(tts_writer_UI):
         pass
 
     def startButton_OnClick(self):
-
         a = flag.pop()
-        a += 1
         result = a % 3
-        if result == 0:
-            self.startButton.Label = "Start"
-        elif result == 1:
-            self.startButton.Label = "Pause"
-        elif result == 2:
-            self.startButton.Label = "Resume"
+        print(result)
+        pygame.mixer.init()
+
+        if result == 1:
             result += 1
+
+            try:
+                ctx = remote_ctx  # IDE
+            except:
+                ctx = uno.getComponentContext()  # UI
+
+            desktop = ctx.getByName("/singletons/com.sun.star.frame.theDesktop")
+
+            # get document
+            document = desktop.getCurrentComponent()
+            text = document.Text
+            content = text.getString()
+            print(content)
+            if document is not None:
+                combined_text = None
+                combined_text = content
+                main_thread = threading.Thread(target=self.proxy, args=(combined_text,))
+                main_thread.start()
+            self.startButton.Label = "Pause"
+            self.ansiButton.Enabled=False
+            self.unicodeButton.Enabled=False
+            self.femaleButton.Enabled=False
+            self.maleButton.Enabled=False
+            self.clearButton.Enabled=False
+
+        elif result == 2:
+            pygame.mixer.pause()
+            result += 1
+            self.startButton.Label = "Resume"
+
+        elif result == 0:
+            pygame.mixer.unpause()
+            result += 2
+            self.startButton.Label = "Pause"
         flag.append(result)
-        try:
-            ctx = remote_ctx  # IDE
-        except:
-            ctx = uno.getComponentContext()  # UI
 
-        desktop = ctx.getByName("/singletons/com.sun.star.frame.theDesktop")
-
-        # get document
-        document = desktop.getCurrentComponent()
-        text = document.Text
-        content = text.getString()
-        print(content)
-        if document is not None:
-            combined_text = None
-            combined_text = content
-            main_thread = threading.Thread(target=self.proxy, args=(combined_text,))
-            main_thread.start()
+    def stopButton_OnClick(self):
+        pygame.mixer.stop()
+        resumeFlag.append(0)
+        flag.pop()
+        flag.append(1)
+        clear_variables()
+        self.startButton.Label = "Play"
+        self.ansiButton.Enabled = True
+        self.unicodeButton.Enabled = True
+        self.femaleButton.Enabled = True
+        self.maleButton.Enabled = True
+        self.clearButton.Enabled=True
+        
 
     def clearButton_OnClick(self):
-        # concatenated_bytes = b''.join(download_chunk)
-        # audio = AudioSegment.from_file(io.BytesIO(concatenated_bytes))
-        # audio.export(download_file, format="wav")
         audio_segments = []
         for audio_bytes in download_chunk:
             audio_segment = AudioSegment.from_file(io.BytesIO(audio_bytes))
@@ -166,6 +193,7 @@ class tts_writer(tts_writer_UI):
 
         # Save the concatenated audio as an audio file (e.g., WAV or MP3)
         final_audio.export(download_file, format="wav")
+        self.messageBox("Audio downloaded to Documents Folder", "Download Completed", INFOBOX)
 
     def proxy(self, main_text):
         print(main_text)
@@ -191,63 +219,62 @@ class tts_writer(tts_writer_UI):
 
         # TODO: not implemented
 
+    def resumeButton_OnClick(self):
+        pygame.mixer.unpause()
+        self.femaleButton_OnClick()
+
     def maleButton_OnClick(self):
-        pygame.mixer.pause()
+        self.disableButtons()
 
     def femaleButton_OnClick(self):
+
+        a = flag.pop()
+        result = a % 2
+        flag.append(0)
         pygame.mixer.unpause()
+        self.startButton.Label = "Pause"
 
-        # TODO: not implemented
-
-    def disableButtons(self):
-        # self.ssmlButton.Enabled=False
-        self.unicodeButton.Enabled = False
-        self.textButton.Enabled = False
-        self.ansiButton.Enabled = False
-        self.ssmlButton.Enabled = False
-        self.maleButton.Enabled = False
-        self.femaleButton.Enabled = False
-        self.pitchBox.Enabled = False
-        self.speedBox.Enabled = False
-        self.maleDrop.Enabled = False
-        self.femaleDrop.Enabled = False
-        self.pitchBox.Enabled = False
-        self.speedBox.Enabled = False
-        self.clearButton.Label = "Stop"
-
-    def enableButtons(self):
-        self.ssmlButton.Enabled = True
-        self.unicodeButton.Enabled = True
-        self.textButton.Enabled = True
-        self.ansiButton.Enabled = True
-        self.maleButton.Enabled = True
-        self.ssmlButton.Enabled = True
-        self.femaleButton.Enabled = True
-        self.maleDrop.Enabled = True
-        self.femaleDrop.Enabled = True
-        self.pitchBox.Enabled = True
-        self.speedBox.Enabled = True
-        self.startButton.Label = "Start"
-        self.clearButton.Label = "Download"
+def disableButtons():
+    app.ansiButton.Enabled = False
+    app.unicodeButton.Enabled = False
+    app.maleButton.Enabled = False
+    app.femaleButton.Enabled = False
+    app.pitchBox.Enabled = False
+    app.speedBox.Enabled = False
+    app.maleDrop.Enabled = False
+    app.femaleDrop.Enabled = False
 
 
-def main_chunkify(main_text):
-    clear_variables()
-    chunks = re.split(r'[\r\n।?!,;—:`’‘\']+', main_text)
-    chunks = list(filter(lambda token: token.strip() != "", chunks))
-    for chunk in chunks:
-        create_chunk_array(chunk)
+def enableButtons():
+    app.unicodeButton.Enabled = True
+    app.ansiButton.Enabled = True
+    app.maleButton.Enabled = True
+    app.ssmlButton.Enabled = True
+    app.femaleButton.Enabled = True
+    app.maleDrop.Enabled = True
+    app.femaleDrop.Enabled = True
+    app.pitchBox.Enabled = True
+    app.speedBox.Enabled = True
+    app.startButton.Label = "Play"
+    app.clearButton.Label = "Download"
 
-    threads = []
-    for chunk in main_chunks:
-        thread = threading.Thread(target=send_and_receive_chunk, args=(chunk,))
-        thread.start()
-        threads.append(thread)
+    def main_chunkify(main_text):
+        clear_variables()
+        chunks = re.split(r'[\r\n।?!,;—:`’‘\']+', main_text)
+        chunks = list(filter(lambda token: token.strip() != "", chunks))
+        for chunk in chunks:
+            create_chunk_array(chunk)
 
-    for thread in threads:
-        thread.join()
+        threads = []
+        for chunk in main_chunks:
+            thread = threading.Thread(target=send_and_receive_chunk, args=(chunk,))
+            thread.start()
+            threads.append(thread)
 
-    play_audios()
+        for thread in threads:
+            thread.join()
+
+        play_audios()
 
 
 def create_chunk_array(chunk):
@@ -334,7 +361,7 @@ def play_audio(chunk):
         sound = pygame.sndarray.make_sound(audio_array)  # Play the sound
         sound.play()
 
-       # play(audio)
+        # play(audio)
         while pygame.mixer.get_busy():
             pygame.time.Clock().tick(10)  # Limit the loop's speed to avoid high CPU usage
         is_playing[0] = False
@@ -356,24 +383,22 @@ def clear_variables():
 
 
 # Usage example
-def main_driver(main_text):
-    main_chunkify(main_text)
 
 
 def Run_tts_writer(*args):
     try:
-        ctx = remote_ctx  # IDE
-    except:
         ctx = uno.getComponentContext()  # UI
 
-    # get desktop
-    desktop = ctx.getByName("/singletons/com.sun.star.frame.theDesktop")
+        # get desktop
+        desktop = ctx.getByName("/singletons/com.sun.star.frame.theDesktop")
 
-    # get document
-    document = desktop.getCurrentComponent()
+        # get document
+        document = desktop.getCurrentComponent()
 
-    app = tts_writer(ctx=ctx)
-    app.showDialog()
+        app = tts_writer(ctx=ctx)
+        app.showDialog()
+    except Exception:
+        pass
 
 
 # Execute macro from LibreOffice UI (Tools - Macro)
