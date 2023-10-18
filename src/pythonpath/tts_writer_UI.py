@@ -142,8 +142,8 @@ class tts_writer_UI(unohelper.Base, XActionListener, XJobExecutor):
 
         self.clearButton.Name = "clearButton"
         self.clearButton.TabIndex = 11
-        self.clearButton.PositionX = "55"
-        self.clearButton.PositionY = "220"
+        self.clearButton.PositionX = "130"
+        self.clearButton.PositionY = "190"
         self.clearButton.Width = 35
         self.clearButton.Height = 15
         self.clearButton.Enabled=False

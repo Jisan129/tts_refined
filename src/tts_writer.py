@@ -151,11 +151,11 @@ class tts_writer(tts_writer_UI):
                 main_thread = threading.Thread(target=self.proxy, args=(combined_text,))
                 main_thread.start()
             self.startButton.Label = "Pause"
-            self.ansiButton.Enabled=False
-            self.unicodeButton.Enabled=False
-            self.femaleButton.Enabled=False
-            self.maleButton.Enabled=False
-            self.clearButton.Enabled=False
+            self.ansiButton.Enabled = False
+            self.unicodeButton.Enabled = False
+            self.femaleButton.Enabled = False
+            self.maleButton.Enabled = False
+            self.clearButton.Enabled = False
 
         elif result == 2:
             pygame.mixer.pause()
@@ -179,8 +179,7 @@ class tts_writer(tts_writer_UI):
         self.unicodeButton.Enabled = True
         self.femaleButton.Enabled = True
         self.maleButton.Enabled = True
-        self.clearButton.Enabled=True
-        
+        self.clearButton.Enabled = True
 
     def clearButton_OnClick(self):
         audio_segments = []
@@ -213,6 +212,7 @@ class tts_writer(tts_writer_UI):
             thread.join()
 
         play_audios()
+        enableButtons()
 
     def closeButton_OnClick(self):
         self.DialogContainer.dispose()
@@ -234,29 +234,23 @@ class tts_writer(tts_writer_UI):
         pygame.mixer.unpause()
         self.startButton.Label = "Pause"
 
+
 def disableButtons():
     app.ansiButton.Enabled = False
     app.unicodeButton.Enabled = False
     app.maleButton.Enabled = False
     app.femaleButton.Enabled = False
-    app.pitchBox.Enabled = False
-    app.speedBox.Enabled = False
-    app.maleDrop.Enabled = False
-    app.femaleDrop.Enabled = False
 
 
 def enableButtons():
     app.unicodeButton.Enabled = True
     app.ansiButton.Enabled = True
     app.maleButton.Enabled = True
-    app.ssmlButton.Enabled = True
     app.femaleButton.Enabled = True
-    app.maleDrop.Enabled = True
-    app.femaleDrop.Enabled = True
-    app.pitchBox.Enabled = True
-    app.speedBox.Enabled = True
+    app.clearButton.Enabled = True
     app.startButton.Label = "Play"
     app.clearButton.Label = "Download"
+
 
     def main_chunkify(main_text):
         clear_variables()
